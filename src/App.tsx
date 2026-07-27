@@ -695,7 +695,7 @@ export default function App() {
                       : PUZZLES
                   ).map((p) => (
                     <div key={p.id} className="silhouette-card">
-                      <ShapeSilhouette def={p} size={64} />
+                      <ShapeSilhouette def={p} size={52} />
                       <span>{p.name}</span>
                     </div>
                   ))}
@@ -868,7 +868,7 @@ export default function App() {
           {stage.kind === 'shape' && shapePuzzle && (
             <>
               {/* お題プレビュー（常時表示） */}
-              <div className="shape-goal">
+              <div className={`shape-goal ${endlessActive ? 'with-endless' : ''}`}>
                 <ShapeSilhouette def={shapePuzzle} size={72} />
                 <div className="shape-goal-info">
                   <span className="shape-goal-name">お題: {shapePuzzle.name}</span>

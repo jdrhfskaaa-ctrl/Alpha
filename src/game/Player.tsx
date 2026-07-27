@@ -119,6 +119,8 @@ interface PlayerProps {
   onTrail?: (pos: Vector3, up: Vector3) => void
   /** 移動しているか（足音用）。速度の大きさを通知 */
   onMove?: (speed: number) => void
+  /** スポーン方向（この向きから降下する）。未指定ならランダム方向 */
+  spawnDir?: [number, number, number]
 }
 
 /**
@@ -142,6 +144,7 @@ export function Player({
   statsRef,
   onTrail,
   onMove,
+  spawnDir,
 }: PlayerProps) {
   const camera = useThree((s) => s.camera)
 
@@ -170,18 +173,33 @@ export function Player({
   const moveScale = Math.sqrt(scale)
 
   const respawn = useCallback(() => {
-    const dir = new Vector3().randomDirection()
-    const probe = dir.multiplyScalar(probeRadius)
+    let probe: Vector3
+    if (spawnDir) {
+      // 指定方向（例: 画像モードの真上）から降下する。
+      // 面上の一点に偏らないよう、接平面方向に少しばらけさせる。
+      const d = new Vector3(spawnDir[0], spawnDir[1], spawnDir[2]).normalize()
+      const ref = Math.abs(d.y) < 0.9 ? new Vector3(0, 1, 0) : new Vector3(1, 0, 0)
+      const t1 = new Vector3().crossVectors(ref, d).normalize()
+      const t2 = new Vector3().crossVectors(d, t1).normalize()
+      const jitter = probeRadius * 0.3
+      probe = d
+        .clone()
+        .multiplyScalar(probeRadius)
+        .addScaledVector(t1, (Math.random() * 2 - 1) * jitter)
+        .addScaledVector(t2, (Math.random() * 2 - 1) * jitter)
+    } else {
+      probe = new Vector3().randomDirection().multiplyScalar(probeRadius)
+    }
     if (!multiClosest(surfaces, probe)) return
     const n = probe.clone().sub(best.worldPoint).normalize()
     if (n.lengthSq() < 0.5) n.set(0, 1, 0)
     up.current.copy(n)
     pos.current.copy(best.worldPoint).addScaledVector(n, radius)
-    const ref = Math.abs(n.y) < 0.9 ? new Vector3(0, 1, 0) : new Vector3(1, 0, 0)
-    forward.current.crossVectors(ref, n).normalize()
+    const ref2 = Math.abs(n.y) < 0.9 ? new Vector3(0, 1, 0) : new Vector3(1, 0, 0)
+    forward.current.crossVectors(ref2, n).normalize()
     pitch.current = -0.15
     attachedId.current = null
-  }, [surfaces, radius, probeRadius])
+  }, [surfaces, radius, probeRadius, spawnDir])
 
   // ---- スポーン（ラウンド開始・サーフェス確定時） ----
   useEffect(() => {

@@ -460,6 +460,7 @@ export function GameScene({
               standRef={standRef}
               commandRef={commandRef}
               onTrail={handleTrail}
+              spawnDir={stage.kind === 'image' ? [0, 1, 0] : undefined}
             />
           )}
 

@@ -53,8 +53,9 @@ body {
 .menu {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
+  display: flex;
+  overflow-y: auto;
+  overflow-x: hidden;
   background:
     radial-gradient(ellipse 90% 60% at 50% 110%, rgba(216, 149, 107, 0.14), transparent 60%),
     radial-gradient(ellipse 60% 45% at 20% -10%, rgba(126, 242, 208, 0.08), transparent 60%),
@@ -91,7 +92,10 @@ body {
   position: relative;
   text-align: center;
   max-width: 560px;
-  padding: 56px 24px 24px;
+  /* margin:auto で「収まるときは中央・はみ出すときは上から」を両立し、
+     長い内容でもスタートボタンまでスクロールで到達できる */
+  margin: auto;
+  padding: 56px 24px 32px;
 }
 
 .menu-eyebrow {
@@ -670,12 +674,10 @@ input:focus-visible {
 
 .silhouette-row {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   justify-content: center;
   flex-wrap: wrap;
   margin-bottom: 10px;
-  max-height: 200px;
-  overflow-y: auto;
   padding: 4px;
 }
 
@@ -683,8 +685,8 @@ input:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 10px 14px;
+  gap: 3px;
+  padding: 7px 10px;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -901,7 +903,7 @@ input:focus-visible {
 .ingame-gear {
   position: absolute;
   bottom: 16px;
-  left: 16px;
+  right: 16px;
   width: 40px;
   height: 40px;
   font-size: 18px;
@@ -1417,4 +1419,9 @@ input:focus-visible {
   font-weight: 900;
   font-size: 20px;
   color: #ffd700;
+}
+
+/* エンドレス時は上部中央に残り時間バーが出るので、お題パネルを下げて重なりを回避 */
+.shape-goal.with-endless {
+  top: 74px;
 }
