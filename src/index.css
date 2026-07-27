@@ -1,21 +1,42 @@
 /* ============================================================
-   ALPHA GRAVITY — UI styles
-   palette: 宇宙紺 #070a18 / パネル #0d1226 / アクセント #7ef2d0
-            警告 #ff6b8a / 文字メッシュと呼応する暖色 #d8956b
+   グラビティークイズ — UI styles
+
+   設計方針:
+   - 背景は 3D シーンの実際の背景色と同じ宇宙紺。UI とゲーム世界を地続きにする。
+   - 罫線は既定では中立色。ミント(--accent)は「選択中・データ・進行中」の
+     状態表現だけに使い、意味を持たせる。
+   - 数値・時間・スコアはすべて等幅（計器のような読み味）。
+   - 砂岩色(--warm)は図形ピースの実際の色。ロゴもこの色で組む。
    ============================================================ */
 
 :root {
   --bg: #070a18;
-  --panel: rgba(13, 18, 38, 0.82);
-  --line: rgba(126, 242, 208, 0.35);
+  --panel: rgba(14, 19, 40, 0.86);
+  --panel-solid: #0c1124;
+  --raise: rgba(255, 255, 255, 0.045);
+  /* 既定の罫線は中立。強調したいときだけ --line-active を使う */
+  --line: rgba(146, 158, 196, 0.22);
+  --line-strong: rgba(146, 158, 196, 0.38);
+  --line-active: rgba(126, 242, 208, 0.55);
   --accent: #7ef2d0;
+  --accent-dim: rgba(126, 242, 208, 0.12);
   --danger: #ff6b8a;
-  --warm: #d8956b;
-  --text: #e8ecf8;
+  --warm: #dfa072;
+  --gold: #ffd23e;
+  --text: #eaeef9;
   --dim: #8b93b4;
   --mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, monospace;
   --sans: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP',
     system-ui, sans-serif;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+}
+
+/* キーボード操作時のフォーカスを必ず見えるようにする */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 * {
@@ -99,26 +120,58 @@ body {
 }
 
 .menu-eyebrow {
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 11px;
-  letter-spacing: 0.35em;
+  font-weight: 700;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
   color: var(--accent);
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .menu-title {
-  font-family: var(--mono);
-  font-size: clamp(44px, 9vw, 76px);
-  font-weight: 800;
-  line-height: 0.95;
-  letter-spacing: 0.02em;
-  color: var(--text);
+  /* 中身は SVG ロゴ。見出しの意味だけ持たせ、装飾はロゴ側に任せる */
+  display: block;
+  margin: 4px 0 10px;
+  font-size: 0;
+  line-height: 0;
 }
 
-.menu-title span {
+.logo {
   display: block;
-  color: var(--warm);
-  -webkit-text-stroke: 0;
+  width: min(430px, 78vw);
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+  filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.55));
+}
+
+.logo-piece {
+  /* 図形モードの接続と同じ「散らばった状態から吸着する」動き */
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: piece-assemble 0.72s cubic-bezier(0.18, 0.85, 0.25, 1) both;
+  stroke: #070a18;
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+}
+
+@keyframes piece-assemble {
+  from {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.72);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.menu-tagline {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--dim);
+  margin-bottom: 22px;
 }
 
 .menu-desc {
@@ -1424,4 +1477,231 @@ input:focus-visible {
 /* エンドレス時は上部中央に残り時間バーが出るので、お題パネルを下げて重なりを回避 */
 .shape-goal.with-endless {
   top: 74px;
+}
+
+/* ============================================================
+   デザイン刷新レイヤー
+   罫線の中立化・ボタンの統一・パネルの質感・計器的な数値表示
+   ============================================================ */
+
+/* ---- モード / 種別タブ: セグメンテッドコントロールとして扱う ---- */
+.mode-tabs,
+.type-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.mode-tabs {
+  margin: 20px 0 10px;
+}
+.type-tabs {
+  margin: 2px 0 12px;
+}
+.mode-tabs button,
+.type-tabs button {
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--dim);
+  cursor: pointer;
+  transition: color 0.16s ease, background 0.16s ease;
+}
+.mode-tabs button:hover:not(:disabled),
+.type-tabs button:hover:not(:disabled) {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+.mode-tabs button.active {
+  color: #05121b;
+  background: var(--accent);
+}
+.type-tabs button.active {
+  color: #1a0f06;
+  background: var(--warm);
+}
+
+/* ---- 選択カード（サイズ / 難易度）---- */
+.size-row {
+  gap: 10px;
+}
+.size-btn {
+  background: var(--raise);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  transition: border-color 0.16s ease, background 0.16s ease, transform 0.12s ease;
+}
+.size-btn:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-1px);
+}
+.size-btn.selected {
+  border-color: var(--line-active);
+  background: var(--accent-dim);
+}
+.size-name {
+  letter-spacing: 0.04em;
+}
+.size-sub {
+  color: var(--dim);
+}
+
+/* ---- セクション見出し ---- */
+.menu-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  color: var(--dim);
+  margin: 22px 0 10px;
+}
+
+/* ---- 主ボタン ---- */
+.start-btn {
+  margin-top: 22px;
+  padding: 15px 56px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-indent: 0.14em;
+  color: #05121b;
+  background: var(--accent);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.16s ease, filter 0.16s ease;
+  box-shadow: 0 8px 26px rgba(126, 242, 208, 0.22);
+}
+.start-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(126, 242, 208, 0.32);
+}
+.start-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* ---- 操作キー一覧: キーキャップ風 ---- */
+.menu-controls {
+  margin-top: 26px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.menu-controls span {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 10px;
+}
+
+/* ---- 汎用ボタン（設定・ランキング・ギブアップ）---- */
+.gear-btn,
+.giveup-btn {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--dim);
+  backdrop-filter: blur(8px);
+  transition: color 0.16s ease, border-color 0.16s ease;
+}
+.gear-btn:hover,
+.giveup-btn:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+.ingame-gear {
+  border-radius: 50%;
+}
+
+/* ---- HUD: 計器的に整える ---- */
+.hud-debug {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--dim);
+  background: linear-gradient(180deg, rgba(14, 19, 40, 0.9), rgba(14, 19, 40, 0.66));
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  backdrop-filter: blur(8px);
+}
+.hud-controls {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  background: linear-gradient(180deg, rgba(14, 19, 40, 0.9), rgba(14, 19, 40, 0.66));
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  backdrop-filter: blur(8px);
+}
+
+/* ---- パネル類の質感を統一 ---- */
+.settings-panel,
+.ranking-panel {
+  background: linear-gradient(180deg, #111733, var(--panel-solid));
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+.shape-goal,
+.hud-choices,
+.silhouette-card {
+  background: linear-gradient(180deg, rgba(17, 23, 51, 0.92), rgba(12, 17, 36, 0.86));
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  backdrop-filter: blur(8px);
+}
+
+/* ---- 数値は等幅で計器らしく ---- */
+.endless-time,
+.endless-count,
+.shape-goal-progress,
+.podium-score,
+.rank-score,
+.score-value strong {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 結果画面 ---- */
+.result-inner {
+  background: linear-gradient(180deg, #121936, var(--panel-solid));
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+.result-head {
+  letter-spacing: 0.12em;
+  text-indent: 0.12em;
+}
+
+/* ---- 部門セレクタ ---- */
+.rank-sel button {
+  border-color: var(--line);
+}
+.rank-sel button:hover:not(.on) {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+/* ---- 狭い画面 ---- */
+@media (max-width: 560px) {
+  .menu-inner {
+    padding: 64px 16px 28px;
+  }
+  .mode-tabs,
+  .type-tabs {
+    flex-wrap: wrap;
+    border-radius: var(--r-md);
+  }
+  .size-row {
+    flex-direction: column;
+  }
 }

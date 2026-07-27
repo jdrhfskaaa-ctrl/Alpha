@@ -6,6 +6,7 @@ import { PUZZLES, pickAnyPuzzle, pickPuzzle, type PuzzleDef } from './game/shape
 import type { ShapeHud, ShapeMessage } from './game/ShapeStage'
 import { SettingsPanel } from './game/SettingsPanel'
 import { RankingScreen } from './game/RankingScreen'
+import { GameTitle } from './game/GameTitle'
 import * as audio from './game/audio'
 import { EMPTY_STATS, computeSoloScore, endlessTiming, type RoundStats } from './game/score'
 import {
@@ -157,7 +158,7 @@ export default function App() {
 
   // タブタイトルにもバージョンを出す（どのファイルを開いているか確認用）
   useEffect(() => {
-    document.title = `ALPHA GRAVITY ${APP_VERSION}`
+    document.title = `グラビティークイズ ${APP_VERSION}`
   }, [])
 
   // ---- Pointer Lock の状態を追跡 ----
@@ -542,7 +543,7 @@ export default function App() {
       {phase === 'START' && (
         <div className="menu">
           <div className="menu-inner">
-            <p className="menu-eyebrow">FIRST-PERSON GRAVITY PUZZLE</p>
+            <p className="menu-eyebrow">一人称 重力パズル</p>
             <p className="menu-version">{APP_VERSION}</p>
             <div className="menu-topbar">
               <button className="gear-btn" onClick={() => setShowRanking(true)} aria-label="ランキング">
@@ -553,8 +554,11 @@ export default function App() {
               </button>
             </div>
             <h1 className="menu-title">
-              ALPHA<span>GRAVITY</span>
+              <GameTitle />
             </h1>
+            <p className="menu-tagline">
+              乗っているせいで、全体が見えない。
+            </p>
 
             <div className="mode-tabs">
               <button

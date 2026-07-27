@@ -2,7 +2,7 @@ import type { BufferGeometry, Object3D } from 'three'
 import type { MeshBVH } from 'three-mesh-bvh'
 
 /** 画面内に表示するビルドバージョン。更新のたびに上げる */
-export const APP_VERSION = 'v14'
+export const APP_VERSION = 'v15'
 
 export type GamePhase = 'START' | 'PLAYING' | 'REVEAL' | 'SUCCESS' | 'FAILED' | 'ENDLESS_OVER'
 
